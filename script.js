@@ -1,5 +1,7 @@
+var deck = [];
+
 var makeDeck = function () {
-  var deck = [];
+  deck = [];
 
   var suits = ["diamonds", "clubs", "hearts", "spades"];
   var suitsIndex = 0;
@@ -84,9 +86,9 @@ var playerHand = [];
 //the value of player's hand
 var playerHandValue = 0;
 
-//dealer's hand
-var dealerHand = [];
-var dealerHandValue = 0;
+// //dealer's hand
+// var dealerHand = [];
+// var dealerHandValue = 0;
 
 //global variables for checking conditions
 var checkBlackJack = false;
@@ -233,17 +235,73 @@ var dealerDraws = function (input) {
   return statementDealerDraws;
 };
 
-//functions to be called before the game starts.
-shuffleCards(deck);
-createPlayerHands();
+var gameResult = function (input) {
+  var gameResultStatement = "";
+  // if dealer [0] goes bust
+  if (determineIfBust(0) == true) {
+    gameResultStatement = `The dealer went bust!`;
+    // both dealer and player are bust
+    if (determineIfBust(1) == true) {
+      gameResultStatement =
+        gameResultStatement + `<br>Player 1 also went bust. <br> It's a DRAW!`;
+    }
+    //if dealer is bust and player is not bust
+    if (determineIfBust(1) == false) {
+      gameResultStatement = gameResultStatement + `<br>Player 1 WINS!!`;
+    }
+  }
+  // if dealer [0] does not go bust
+  if (determineIfBust(0) == false) {
+    gameResultStatement = `The dealer's hand has a value of ${calcHandValue(
+      0
+    )}.`;
+    //player goes bust
+    if (determineIfBust(1) == true) {
+      gameResultStatement =
+        gameResultStatement + `<br>Player 1 has gone bust. Player 1 LOSES!`;
+    }
+    //both player and dealer do not go bust
+    if (determineIfBust(1) == false) {
+      gameResultStatement =
+        gameResultStatement +
+        `<br>Player 1's hand has a value of ${calcHandValue(1)}.`;
+      // if both have same value
+      if (calcHandValue(0) == calcHandValue(1)) {
+        gameResultStatement = gameResultStatement + `<br>DRAW!`;
+      }
+      // if player hand value is higher than dealer's
+      if (calcHandValue(1) > calcHandValue(0)) {
+        gameResultStatement = gameResultStatement + `<br>Player 1 wins!!`;
+      }
+      //if player hand value is less than dealer's
+      if (calcHandValue(1) < calcHandValue(0)) {
+        gameResultStatement = gameResultStatement + `<br>Player 1 loses!!`;
+      }
+    }
+  }
+  //after displaying results, reset the game.
+  gameMode = "FIRST_DEAL";
+  return gameResultStatement;
+};
+
+// //functions to be called before the game starts.
+// shuffleCards(deck);
+// createPlayerHands();
 
 var main = function (input) {
   if (gameMode == "FIRST_DEAL") {
+    //functions to be called before the game starts.
+    makeDeck();
+    shuffleCards(deck);
+    handArray = [];
+    createPlayerHands();
     return firstDeal(input);
   } else if (gameMode == "PLAYER_HIT_STAND") {
     return playerHitStand(input);
   } else if (gameMode == "DEALER_DRAWS") {
     return dealerDraws(input);
+  } else if (gameMode == "GAME_RESULT") {
+    return gameResult(input);
   } else if (gameMode == "PLAYER_OUT") {
     return playerOut();
   }
