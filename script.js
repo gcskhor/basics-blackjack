@@ -67,11 +67,11 @@ var deck = makeDeck();
 var shuffledDeck = shuffleCards(deck);
 
 //game mode
-var gameMode = "FIRST_DEAL";
+var gameMode = "NUMBER_OF_PLAYERS";
 var playerTurn = 1;
 
 //place all hands into an array. Dealer's hand is [0], player 1 is [1], player 2 is [2], etc.
-var numberOfPlayers = 1; //## later add mode to change number of players ##
+var numberOfPlayers = 0; //## later add mode to change number of players ##
 var handArray = [];
 var createPlayerHands = function () {
   var playerIndex = 0;
@@ -81,22 +81,33 @@ var createPlayerHands = function () {
   }
 };
 
-//player's initial cards
-var playerHand = [];
-//the value of player's hand
-var playerHandValue = 0;
+//checks to see if there are
+var bustCounter = function () {
+  var bustCountIndex = 1;
+  var bustedHands = 0;
+  while (bustCountIndex <= numberOfPlayers) {
+    if (calcHandValue(bustCountIndex) > 21) {
+      bustedHands += 1;
+    }
+    bustCountIndex += 1;
+  }
+  return bustedHands;
+};
 
-// //dealer's hand
-// var dealerHand = [];
-// var dealerHandValue = 0;
+//checks for the number of Aces in a hand.
+var aceCounter = function (handIndex) {
+  var numberOfAces = 0;
+  var aceChecker = 0;
+  while (aceChecker < handArray[handIndex].length) {
+    if (handArray[handIndex][aceChecker].rank == 1) {
+      numberOfAces += 1;
+    }
+    aceChecker += 1;
+  }
+  return numberOfAces;
+};
 
-//global variables for checking conditions
-var checkBlackJack = false;
-var checkBust = false;
-var checkLow = false;
-
-//calculates the value of the player's hand
-var calcHandValue = function (arrayIndex) {
+var calcHandValueBasic = function (arrayIndex) {
   //reset playerHandValue to 0 so that it resets before adding on to the global variable
   var handValue = 0;
   handIndex = 0;
@@ -105,6 +116,40 @@ var calcHandValue = function (arrayIndex) {
     handIndex += 1;
   }
   return handValue;
+};
+
+//calculates the value of the player's hand
+var calcHandValue = function (arrayIndex) {
+  //reset playerHandValue to 0 so that it resets before adding on to the global variable
+  var handValue = 0;
+  handIndex = 0;
+  //add variable Ace.
+  //first Ace counts as 11 unless it busts the hand.
+  while (handIndex < handArray[arrayIndex].length) {
+    handValue += handArray[arrayIndex][handIndex].value;
+    handIndex += 1;
+  }
+  //if variable ace conditions are met, add 10 to score (1+10 ==11)
+  if (aceCounter(arrayIndex) >= 1 && calcHandValueBasic(arrayIndex) <= 11) {
+    handValue += 10;
+  }
+  return handValue;
+};
+
+//determines the value of the lowest hand so that the dealer can try to beat it;
+// doesn't need to determine which hand that is.
+var lowestHandValue = function () {
+  var handScores = [];
+  var index = 1;
+  while (index <= numberOfPlayers) {
+    handScores.push(calcHandValue(index));
+    index += 1;
+  }
+  //sort array in ascending order
+  handScores.sort(function (a, b) {
+    return a - b;
+  });
+  return handScores[0];
 };
 
 //CHECKING FUNCTIONS
@@ -119,10 +164,8 @@ var determineIfBlackJack = function (arrayIndex) {
 //function to determine if player has gone bust (playerHand > 21)
 var determineIfBust = function (arrayIndex) {
   if (calcHandValue(arrayIndex) > 21) {
-    console.log("a");
     return true;
   } else {
-    console.log("b");
     return false;
   }
 };
@@ -138,12 +181,13 @@ var determineIfLow = function (arrayIndex) {
 };
 
 var displayPlayerHand = function (handIndex) {
+  //handIndex refers to the index of the relevant hand in the varriable 'handArray'
   var index = 0;
 
   if (handIndex == 0) {
-    var playerHandDisplay = "Dealer's hand: <br>";
+    var playerHandDisplay = `Dealers hand: <br>`;
   } else {
-    var playerHandDisplay = `Player ${playerTurn}'s hand:<br>`;
+    var playerHandDisplay = `Player ${playerTurn}'s hand<br>`;
   }
 
   while (index < handArray[handIndex].length) {
@@ -153,36 +197,45 @@ var displayPlayerHand = function (handIndex) {
   playerHandDisplay += `<br> The hand totals up to ${calcHandValue(
     handIndex
   )}. <br><br>`;
+
   return playerHandDisplay;
 };
 
+var howManyPlayers = function (input) {
+  statementHowManyPlayers =
+    "How many players will be playing in this game? (1-4)";
+  numberOfPlayers = input;
+  if (numberOfPlayers >= 1 && numberOfPlayers <= 4) {
+    numberOfPlayers = input;
+    gameMode = "FIRST_DEAL";
+    statementHowManyPlayers = `You have decided on ${numberOfPlayers} players. Nice! <br><br>Player 1, click the button.`;
+  }
+  return statementHowManyPlayers;
+};
+
 var firstDeal = function (input) {
-  //[0] is dealer
-  hit(0);
-  hit(0);
-  // [1] is player 1.
+  //[0] is dealer, [1] is player 1, [2] is player 2 etc.
   hit(playerTurn);
   hit(playerTurn);
-
-  // playerHand.push(deck.pop());
-  // playerHand.push(deck.pop());
-
-  calcHandValue(playerTurn);
 
   var statementFirstDeal = displayPlayerHand(playerTurn);
 
-  if (checkBlackJack == true) {
-    statementFirstDeal += `21 Blackjack! Let's see what the dealer got.`;
-    gameMode = "DEALER_DRAWS";
+  if (calcHandValue(playerTurn) == 21) {
+    statementFirstDeal += `21 Blackjack! Click the button to continue.`;
+    if (playerTurn == numberOfPlayers) {
+      gameMode = "DEALER_DRAWS";
+      return statementFirstDeal;
+    }
+    if (playerTurn < numberOfPlayers) {
+      gameMode = "FIRST_DEAL";
+      playerTurn += 1;
+      return statementFirstDeal;
+    }
   } else {
     statementFirstDeal += `Hit (h) or Stand (s)?<br><br>`;
   }
   gameMode = "PLAYER_HIT_STAND";
   return statementFirstDeal;
-};
-
-var playerHit = function () {
-  playerHand.push(deck.pop());
 };
 
 var hit = function (arrayIndex) {
@@ -192,117 +245,189 @@ var hit = function (arrayIndex) {
 var playerHitStand = function (input) {
   var statementPlayerHitStand =
     "Please enter either hit (h) or stand (s) to proceed.";
+  //player HITS
   if (input == "hit" || input == "h") {
     statementPlayerHitStand = "";
     hit(playerTurn);
     if (determineIfBust(playerTurn) == true) {
-      gameMode = "PLAYER_OUT";
       statementPlayerHitStand =
-        displayPlayerHand(playerTurn) +
-        ` You have gone BUST!!!! you lose.<br><br>`;
-    } else {
+        displayPlayerHand(playerTurn) + `BUST!!!!<br><br>`;
+
+      gameMode = "FIRST_DEAL";
+      //if last player, change game mode
+      if (playerTurn == numberOfPlayers) {
+        gameMode = "DEALER_DRAWS";
+      }
+      //if last player, change game mode
+      if (playerTurn < numberOfPlayers) {
+        playerTurn += 1;
+      }
+    }
+    //
+    else if (determineIfBust(playerTurn) == false) {
       statementPlayerHitStand =
         displayPlayerHand(playerTurn) + `Hit (h) or Stand (s)?<br><br>`;
+
+      if (calcHandValue(playerTurn) == 21) {
+        statementPlayerHitStand =
+          displayPlayerHand(playerTurn) +
+          `BLACKJACK! <br> Click the button to continue. `;
+
+        if (playerTurn == numberOfPlayers) {
+          gameMode = "DEALER_DRAWS";
+        }
+        if (playerTurn < numberOfPlayers) {
+          playerTurn += 1;
+          gameMode = "FIRST_DEAL";
+        }
+        return statementPlayerHitStand;
+      }
     }
-  } else if (input == "stand" || input == "s") {
+  }
+  //player STANDS
+  else if (input == "stand" || input == "s") {
     statementPlayerHitStand = "";
-    gameMode = "DEALER_DRAWS";
-    statementPlayerHitStand =
-      displayPlayerHand(playerTurn) +
-      `You have chosen to stand.<br><br>Click the button to see the dealer's move. <br><br>`;
+
+    if (playerTurn == numberOfPlayers) {
+      gameMode = "DEALER_DRAWS";
+      statementPlayerHitStand =
+        displayPlayerHand(playerTurn) +
+        `You have chosen to stand.<br><br>Click the button to see the dealer's move. <br><br>`;
+    } else if (playerTurn < numberOfPlayers) {
+      statementPlayerHitStand =
+        displayPlayerHand(playerTurn) +
+        `You have chosen to stand.<br><br>Player ${
+          playerTurn + 1
+        }, click the button. <br><br>`;
+      playerTurn += 1;
+      gameMode = "FIRST_DEAL";
+    }
   }
   return statementPlayerHitStand;
 };
 
 var dealerDraws = function (input) {
+  if (handArray[0].length == 0) {
+    hit(0);
+    hit(0);
+  }
+
   var statementDealerDraws = `Dealer's turn... <br><br> ${displayPlayerHand(
     0
   )}`;
 
-  //dealer hits if his hand value is less than
-  if (calcHandValue(0) < 13) {
-    hit(0);
-    statementDealerDraws += `Dealer hits and draws ${
-      handArray[0][handArray[0].length - 1].name
-    } of ${handArray[0][handArray[0].length - 1].suit}. <br><br>`; //get last element in the array
-  } else {
-    gameMode = "GAME_RESULT";
-  }
+  //dealer hits if his hand value is less than X or his hand value is less than the lowest player's hand value
+  //dealer always attempts to beat the weakest hand.
+  // if there are players already bust, dealer will stand when his hand value is <19
 
+  //if there are no busts, dealer takes greater risk
+  if (bustCounter() == 0) {
+    while (
+      calcHandValue(0) < 15 ||
+      (determineIfBust(0) == false && calcHandValue(0) < lowestHandValue())
+    ) {
+      hit(0);
+      statementDealerDraws += `Dealer hits and draws ${
+        handArray[0][handArray[0].length - 1].name
+      } of ${
+        handArray[0][handArray[0].length - 1].suit
+      }.<br>The hand now adds up to ${calcHandValue(0)}. <br><br>`; //get last element in the array
+    }
+  }
+  // if there are some busts, dealer stops when his hand value is lower. (Dealer always beats at least 1 player)
+  else if (bustCounter() > 0) {
+    while (calcHandValue(0) < 13) {
+      hit(0);
+      statementDealerDraws += `Dealer hits and draws ${
+        handArray[0][handArray[0].length - 1].name
+      } of ${
+        handArray[0][handArray[0].length - 1].suit
+      }.<br>The hand now adds up to ${calcHandValue(0)}. <br><br>`; //get last element in the array
+    }
+  }
+  gameMode = "GAME_RESULT";
   if (calcHandValue(0) > 21) {
     statementDealerDraws += `Dealer goes bust! <br><br>`;
   }
   return statementDealerDraws;
 };
 
+//PROBLEM: undefined when dealer goes bust
 var gameResult = function (input) {
-  var gameResultStatement = "";
+  var gameResultStatement = `The dealer's hand has a value of ${calcHandValue(
+    0
+  )}<br><br>`;
+
   // if dealer [0] goes bust
   if (determineIfBust(0) == true) {
-    gameResultStatement = `The dealer went bust!`;
-    // both dealer and player are bust
-    if (determineIfBust(1) == true) {
-      gameResultStatement =
-        gameResultStatement + `<br>Player 1 also went bust. <br> It's a DRAW!`;
-    }
-    //if dealer is bust and player is not bust
-    if (determineIfBust(1) == false) {
-      gameResultStatement = gameResultStatement + `<br>Player 1 WINS!!`;
+    var resultIndex = 1;
+    while (resultIndex <= numberOfPlayers) {
+      gameResultStatement += `Player ${resultIndex}'s hand has a value of ${calcHandValue(
+        resultIndex
+      )}.<br>`;
+      //if player also goes bust, DRAW.
+      if (determineIfBust(resultIndex) == true) {
+        gameResultStatement += `Player ${resultIndex} also went bust and DRAWS with the dealer! EVERYBODY SUCKS :( <br><br>`;
+      }
+
+      //if player does not go bust, player WINS
+      if (determineIfBust(resultIndex) == false) {
+        gameResultStatement += `Player ${resultIndex} WINS! Low hanging fruit bro. <br><br>`;
+      }
+      resultIndex += 1;
     }
   }
-  // if dealer [0] does not go bust
-  if (determineIfBust(0) == false) {
-    gameResultStatement = `The dealer's hand has a value of ${calcHandValue(
-      0
-    )}.`;
-    //player goes bust
-    if (determineIfBust(1) == true) {
-      gameResultStatement =
-        gameResultStatement + `<br>Player 1 has gone bust. Player 1 LOSES!`;
-    }
-    //both player and dealer do not go bust
-    if (determineIfBust(1) == false) {
-      gameResultStatement =
-        gameResultStatement +
-        `<br>Player 1's hand has a value of ${calcHandValue(1)}.`;
-      // if both have same value
-      if (calcHandValue(0) == calcHandValue(1)) {
-        gameResultStatement = gameResultStatement + `<br>DRAW!`;
+
+  // if dealer does not go bust
+  else if (determineIfBust(0) == false) {
+    var resultIndex = 1;
+    while (resultIndex <= numberOfPlayers) {
+      gameResultStatement += `Player ${resultIndex}'s hand has a value of ${calcHandValue(
+        resultIndex
+      )}.<br>`;
+      //determine if the player loses to the dealer.
+      if (
+        determineIfBust(resultIndex) == true ||
+        calcHandValue(0) > calcHandValue(resultIndex)
+      ) {
+        gameResultStatement += `Player ${resultIndex} LOSES! You got owned hard by the dealer, sucka!<br><br>`;
       }
-      // if player hand value is higher than dealer's
-      if (calcHandValue(1) > calcHandValue(0)) {
-        gameResultStatement = gameResultStatement + `<br>Player 1 wins!!`;
+
+      //determine if the player beats the dealer.
+      else if (calcHandValue(0) < calcHandValue(resultIndex)) {
+        gameResultStatement += `Player ${resultIndex} WINS! Comeback is real<br><br>`;
       }
-      //if player hand value is less than dealer's
-      if (calcHandValue(1) < calcHandValue(0)) {
-        gameResultStatement = gameResultStatement + `<br>Player 1 loses!!`;
+
+      //determine if it's a draw
+      else {
+        gameResultStatement += `Player ${resultIndex} DRAWS with the dealer. Lame stuff<br><br>`;
       }
+      resultIndex += 1;
     }
   }
-  //after displaying results, reset the game.
+  gameResultStatement += `<br><br>Click the button to restart the game.`;
   gameMode = "FIRST_DEAL";
+  playerTurn = 1;
   return gameResultStatement;
 };
 
-// //functions to be called before the game starts.
-// shuffleCards(deck);
-// createPlayerHands();
-
 var main = function (input) {
-  if (gameMode == "FIRST_DEAL") {
-    //functions to be called before the game starts.
-    makeDeck();
-    shuffleCards(deck);
-    handArray = [];
-    createPlayerHands();
-    return firstDeal(input);
+  if (gameMode == "NUMBER_OF_PLAYERS") {
+    return howManyPlayers(input);
+  } else if (gameMode == "FIRST_DEAL") {
+    if (playerTurn == 1) {
+      //functions to be called before the game starts.
+      makeDeck();
+      shuffleCards(deck);
+      handArray = [];
+      createPlayerHands();
+    }
+    return firstDeal();
   } else if (gameMode == "PLAYER_HIT_STAND") {
     return playerHitStand(input);
   } else if (gameMode == "DEALER_DRAWS") {
-    return dealerDraws(input);
+    return dealerDraws();
   } else if (gameMode == "GAME_RESULT") {
-    return gameResult(input);
-  } else if (gameMode == "PLAYER_OUT") {
-    return playerOut();
+    return gameResult();
   }
 };
