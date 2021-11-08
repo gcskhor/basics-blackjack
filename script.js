@@ -66,8 +66,11 @@ var shuffleCards = function (cardDeck) {
 var deck = makeDeck();
 var shuffledDeck = shuffleCards(deck);
 
+//memes
+var myImage = "";
+
 //game mode
-var gameMode = "NUMBER_OF_PLAYERS";
+https: var gameMode = "NUMBER_OF_PLAYERS";
 var playerTurn = 1;
 
 //place all hands into an array. Dealer's hand is [0], player 1 is [1], player 2 is [2], etc.
@@ -202,8 +205,10 @@ var displayPlayerHand = function (handIndex) {
 };
 
 var howManyPlayers = function (input) {
+  myImage = '<img src="https://c.tenor.com/4k6A05gkZ2MAAAAM/doge-coin.gif"/>';
+
   statementHowManyPlayers =
-    "How many players will be playing in this game? (1-4)";
+    "How many players will be playing in this game? (1-4)<br><br>" + myImage;
   numberOfPlayers = input;
   if (numberOfPlayers >= 1 && numberOfPlayers <= 4) {
     numberOfPlayers = input;
@@ -218,6 +223,8 @@ var firstDeal = function (input) {
   hit(playerTurn);
   hit(playerTurn);
 
+  var imageWot =
+    '<img src="https://c.tenor.com/WDC0uCWW_8kAAAAM/doge-loop.gif"/>';
   var statementFirstDeal = displayPlayerHand(playerTurn);
 
   if (calcHandValue(playerTurn) == 21) {
@@ -232,7 +239,7 @@ var firstDeal = function (input) {
       return statementFirstDeal;
     }
   } else {
-    statementFirstDeal += `Hit (h) or Stand (s)?<br><br>`;
+    statementFirstDeal += `Hit (h) or Stand (s)?<br><br>` + imageWot;
   }
   gameMode = "PLAYER_HIT_STAND";
   return statementFirstDeal;
@@ -243,15 +250,19 @@ var hit = function (arrayIndex) {
 };
 
 var playerHitStand = function (input) {
+  myImage =
+    '<img src ="https://c.tenor.com/DMWqIb2Rdp4AAAAj/bonk-cheems.gif"/>';
   var statementPlayerHitStand =
-    "Please enter either hit (h) or stand (s) to proceed.";
+    "Please enter either hit (h) or stand (s) to proceed.<br><br>" + myImage;
   //player HITS
   if (input == "hit" || input == "h") {
     statementPlayerHitStand = "";
     hit(playerTurn);
     if (determineIfBust(playerTurn) == true) {
+      var myBustImage =
+        '<img src ="https://c.tenor.com/VuaozB5F-g0AAAAM/sad-sad-arizion.gif"/>';
       statementPlayerHitStand =
-        displayPlayerHand(playerTurn) + `BUST!!!!<br><br>`;
+        displayPlayerHand(playerTurn) + `BUST!!!!<br><br>` + myBustImage;
 
       gameMode = "FIRST_DEAL";
       //if last player, change game mode
@@ -269,9 +280,12 @@ var playerHitStand = function (input) {
         displayPlayerHand(playerTurn) + `Hit (h) or Stand (s)?<br><br>`;
 
       if (calcHandValue(playerTurn) == 21) {
+        var myBlackjackImage =
+          '<img src ="https://c.tenor.com/-9Gb0lDJbzQAAAAM/dogecoin-notkdk3.gif"/>';
         statementPlayerHitStand =
           displayPlayerHand(playerTurn) +
-          `BLACKJACK! <br> Click the button to continue. `;
+          `BLACKJACK! <br> Click the button to continue. <br><br>` +
+          myBlackjackImage;
 
         if (playerTurn == numberOfPlayers) {
           gameMode = "DEALER_DRAWS";
@@ -287,18 +301,19 @@ var playerHitStand = function (input) {
   //player STANDS
   else if (input == "stand" || input == "s") {
     statementPlayerHitStand = "";
-
+    var standImage =
+      '<img src="https://c.tenor.com/HS69Dl_aljwAAAAj/pet-the-peepo-doge.gif"/>';
     if (playerTurn == numberOfPlayers) {
       gameMode = "DEALER_DRAWS";
       statementPlayerHitStand =
         displayPlayerHand(playerTurn) +
-        `You have chosen to stand.<br><br>Click the button to see the dealer's move. <br><br>`;
+        `You have chosen to stand.<br><br>Click the button to see the dealer's move. <br><br>${standImage}`;
     } else if (playerTurn < numberOfPlayers) {
       statementPlayerHitStand =
         displayPlayerHand(playerTurn) +
         `You have chosen to stand.<br><br>Player ${
           playerTurn + 1
-        }, click the button. <br><br>`;
+        }, click the button. <br><br>${standImage}`;
       playerTurn += 1;
       gameMode = "FIRST_DEAL";
     }
@@ -318,7 +333,7 @@ var dealerDraws = function (input) {
 
   //dealer hits if his hand value is less than X or his hand value is less than the lowest player's hand value
   //dealer always attempts to beat the weakest hand.
-  // if there are players already bust, dealer will stand when his hand value is <19
+  // if there are >1 players already bust, dealer will stand when his hand value is <19
 
   //if there are no busts, dealer takes greater risk
   if (bustCounter() == 0) {
@@ -335,7 +350,7 @@ var dealerDraws = function (input) {
     }
   }
   // if there are some busts, dealer stops when his hand value is lower. (Dealer always beats at least 1 player)
-  else if (bustCounter() > 0) {
+  else if (bustCounter() > 1) {
     while (calcHandValue(0) < 13) {
       hit(0);
       statementDealerDraws += `Dealer hits and draws ${
@@ -354,6 +369,19 @@ var dealerDraws = function (input) {
 
 //PROBLEM: undefined when dealer goes bust
 var gameResult = function (input) {
+  var winImage =
+    '<img src="https://c.tenor.com/KwNKtS5KFjkAAAAM/doge-dogecoin.gif"/>';
+  var loseImage =
+    '<img src="https://c.tenor.com/9Qj7BES0hGcAAAAM/tears-sad.gif"/>';
+  var drawImage =
+    '<img src="https://c.tenor.com/KLXs9rkAM2YAAAAM/dog-smiling.gif"/>';
+  var winImage2 =
+    '<img src="https://c.tenor.com/sTFc7j1xRJ0AAAAM/doge-dancing-doge.gif"/>';
+  var loseImage2 =
+    '<img src="https://c.tenor.com/AEeVoflw4wAAAAAj/ree-dog.gif"/>';
+  var drawImage2 =
+    '<img src="https://c.tenor.com/5GuiADwo8YAAAAAM/doge-walking-doge-bread.gif"/>';
+
   var gameResultStatement = `The dealer's hand has a value of ${calcHandValue(
     0
   )}<br><br>`;
@@ -367,12 +395,12 @@ var gameResult = function (input) {
       )}.<br>`;
       //if player also goes bust, DRAW.
       if (determineIfBust(resultIndex) == true) {
-        gameResultStatement += `Player ${resultIndex} also went bust and DRAWS with the dealer! EVERYBODY SUCKS :( <br><br>`;
+        gameResultStatement += `Player ${resultIndex} also went bust and DRAWS with the dealer! Everybodu sucks :( <br> ${drawImage2} <br><br>`;
       }
 
       //if player does not go bust, player WINS
       if (determineIfBust(resultIndex) == false) {
-        gameResultStatement += `Player ${resultIndex} WINS! Low hanging fruit bro. <br><br>`;
+        gameResultStatement += `Player ${resultIndex} WINS! Low hanging fruit bro. <br> ${winImage2} <br><br>`;
       }
       resultIndex += 1;
     }
@@ -390,17 +418,26 @@ var gameResult = function (input) {
         determineIfBust(resultIndex) == true ||
         calcHandValue(0) > calcHandValue(resultIndex)
       ) {
-        gameResultStatement += `Player ${resultIndex} LOSES! You got owned hard by the dealer, sucka!<br><br>`;
+        gameResultStatement +=
+          `Player ${resultIndex} LOSES! You got owned hard by the dealer, sucka!<br>` +
+          loseImage +
+          `<br><br>`;
       }
 
       //determine if the player beats the dealer.
       else if (calcHandValue(0) < calcHandValue(resultIndex)) {
-        gameResultStatement += `Player ${resultIndex} WINS! Comeback is real<br><br>`;
+        gameResultStatement +=
+          `Player ${resultIndex} WINS! Comeback is real<br>` +
+          winImage +
+          `<br><br>`;
       }
 
       //determine if it's a draw
       else {
-        gameResultStatement += `Player ${resultIndex} DRAWS with the dealer. Lame stuff<br><br>`;
+        gameResultStatement +=
+          `Player ${resultIndex} DRAWS with the dealer. Lame stuff<br>` +
+          drawImage +
+          `<br><br>`;
       }
       resultIndex += 1;
     }
