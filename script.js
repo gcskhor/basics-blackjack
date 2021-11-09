@@ -252,6 +252,9 @@ var hit = function (arrayIndex) {
 var playerHitStand = function (input) {
   myImage =
     '<img src ="https://c.tenor.com/DMWqIb2Rdp4AAAAj/bonk-cheems.gif"/>';
+  var hitOrStandImage =
+    '<img src="https://c.tenor.com/WDC0uCWW_8kAAAAM/doge-loop.gif"/>';
+
   var statementPlayerHitStand =
     "Please enter either hit (h) or stand (s) to proceed.<br><br>" + myImage;
   //player HITS
@@ -277,7 +280,8 @@ var playerHitStand = function (input) {
     //
     else if (determineIfBust(playerTurn) == false) {
       statementPlayerHitStand =
-        displayPlayerHand(playerTurn) + `Hit (h) or Stand (s)?<br><br>`;
+        displayPlayerHand(playerTurn) +
+        `Hit (h) or Stand (s)?<br>${hitOrStandImage}`;
 
       if (calcHandValue(playerTurn) == 21) {
         var myBlackjackImage =
@@ -322,6 +326,9 @@ var playerHitStand = function (input) {
 };
 
 var dealerDraws = function (input) {
+  var hitOrStandImage =
+    '<img src="https://c.tenor.com/AEeVoflw4wAAAAAj/ree-dog.gif"/>';
+
   if (handArray[0].length == 0) {
     hit(0);
     hit(0);
@@ -350,8 +357,8 @@ var dealerDraws = function (input) {
     }
   }
   // if there are some busts, dealer stops when his hand value is lower. (Dealer always beats at least 1 player)
-  else if (bustCounter() > 1) {
-    while (calcHandValue(0) < 13) {
+  else if (bustCounter() >= 1) {
+    while (calcHandValue(0) < 12) {
       hit(0);
       statementDealerDraws += `Dealer hits and draws ${
         handArray[0][handArray[0].length - 1].name
@@ -364,6 +371,8 @@ var dealerDraws = function (input) {
   if (calcHandValue(0) > 21) {
     statementDealerDraws += `Dealer goes bust! <br><br>`;
   }
+
+  statementDealerDraws += hitOrStandImage;
   return statementDealerDraws;
 };
 
