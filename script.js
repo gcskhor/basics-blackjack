@@ -70,8 +70,19 @@ var shuffledDeck = shuffleCards(deck);
 var myImage = "";
 
 //game mode
-https: var gameMode = "NUMBER_OF_PLAYERS";
+var gameMode = "NUMBER_OF_PLAYERS";
 var playerTurn = 1;
+
+//counts the round and displays it in the html container
+var roundCounter = 1;
+var addRoundCounter = function () {
+  if (roundCounter == 1) {
+    document.getElementById("roundcount").innerHTML = `Round ${roundCounter}`;
+  }
+  if (roundCounter > 1) {
+    document.getElementById("roundcount").innerHTML = `Round ${roundCounter}`;
+  }
+};
 
 //place all hands into an array. Dealer's hand is [0], player 1 is [1], player 2 is [2], etc.
 var numberOfPlayers = 0; //## later add mode to change number of players ##
@@ -378,6 +389,9 @@ var dealerDraws = function (input) {
 
 //PROBLEM: undefined when dealer goes bust
 var gameResult = function (input) {
+  //change background to gif when displaying results
+  document.body.style.backgroundImage =
+    "url('https://mcdn.wallpapersafari.com/medium/94/94/JbModX.jpg')";
   var winImage =
     '<img src="https://c.tenor.com/KwNKtS5KFjkAAAAM/doge-dogecoin.gif"/>';
   var loseImage =
@@ -454,6 +468,7 @@ var gameResult = function (input) {
   gameResultStatement += `<br><br>Click the button to restart the game.`;
   gameMode = "FIRST_DEAL";
   playerTurn = 1;
+  roundCounter += 1;
   return gameResultStatement;
 };
 
@@ -467,6 +482,10 @@ var main = function (input) {
       shuffleCards(deck);
       handArray = [];
       createPlayerHands();
+      addRoundCounter();
+      //reset background to standard background
+      document.body.style.backgroundImage =
+        "url('https://wallpaperaccess.com/full/1397879.jpg')";
     }
     return firstDeal();
   } else if (gameMode == "PLAYER_HIT_STAND") {
