@@ -99,6 +99,7 @@
         background-color: white;
         color: black; /* sets the font color */
         background-image: url("https://wallpaperaccess.com/full/1397879.jpg"); /* The image used */
+        /*background-image: url("https://c.tenor.com/4k6A05gkZ2MAAAAM/doge-coin.gif");
         background-position: center; /* Center the image */
         background-repeat: no-repeat; /* Do not repeat the image */
         background-size: cover; /* Resize the background image to cover the entire container */
@@ -110,9 +111,12 @@
         max-height: 200px;
       }
       .header {
+        margin: 100px auto;
+        max-width: 800px;
         text-align: center;
         font-size: 1.1rem;
         margin-bottom: 3rem;
+        border-radius: 12px;
         background-color: white;
         opacity: 0.8;
       }
@@ -121,7 +125,8 @@
         background-color: #d9bd62;
         margin: 40px auto;
         max-width: 800px;
-        padding: 38px 31px;
+        padding: 31px 31px;
+        border-radius: 12px;
       }
 
       input {
@@ -130,6 +135,7 @@
         margin: 0 0 23px 0;
         padding: 0 9px;
         width: 100%;
+        border-radius: 8px;
       }
 
       button {
@@ -137,6 +143,7 @@
         line-height: 33px;
         margin: 0 0 23px 0;
         padding: 0 6px;
+        border-radius: 8px;
       }
 
       #output-div {
@@ -144,6 +151,7 @@
         margin: 20px auto;
         padding: 20px;
         width: 100%;
+        border-radius: 12px;
       }
 
       .logo-img {
@@ -167,7 +175,7 @@
         class="logo-img"
         src="https://ra-web-files.s3.ap-southeast-1.amazonaws.com/all/brand/logo.png"
       />
-      Rocket Academy
+      Rocket Acadogemy
       <img
         class="logo-img"
         src="https://ra-web-files.s3.ap-southeast-1.amazonaws.com/all/brand/logo.png"
@@ -185,6 +193,8 @@
         Click the button to begin! <br /><br />
         <img src="https://c.tenor.com/0FW2oGmsd0gAAAAC/doge-wow.gif" />
       </div>
+      <!-- Add round counter -->
+      <p id="roundcount"></p>
     </div>
     <!-- Import program logic -->
     <script src="script.js"></script>
